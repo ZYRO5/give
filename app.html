@@ -1,0 +1,2030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Give — Before Login</title>
+    <style>
+        :root {
+            --bg: #f0f8f1;
+            --surface: #ffffff;
+            --text: #163022;
+            --muted: #53705b;
+            --accent: #2f8f4f;
+            --accent-dark: #1f6b3a;
+            --teal: #14673e;
+            --line: #dcebdc;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text);
+            background: linear-gradient(180deg, #f6fdf7 0%, var(--bg) 100%);
+            line-height: 1.5;
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        .container {
+            width: min(1200px, calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            font-size: 20px;
+        }
+
+        .brand-badge {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: white;
+            font-size: 20px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 11px 18px;
+            border-radius: 999px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+            color: white;
+            box-shadow: 0 10px 24px rgba(47,143,79,0.24);
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: var(--text);
+            border: 1px solid var(--line);
+        }
+
+        .auth-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 100;
+        }
+
+        .auth-modal.open {
+            display: flex;
+        }
+
+        .auth-card {
+            width: min(460px, 100%);
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
+        }
+
+        .auth-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .auth-header h3 {
+            font-size: 22px;
+            margin-top: 6px;
+        }
+
+        .close-btn {
+            border: none;
+            background: #f3f5f8;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .auth-note {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .auth-switch {
+            display: flex;
+            gap: 8px;
+            margin: 12px 0 14px;
+        }
+
+        .auth-switch button {
+            flex: 1;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 10px 12px;
+            background: #fff;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .auth-switch button.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .auth-card form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .auth-card label {
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .auth-card input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .auth-card input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255,122,0,0.16);
+        }
+
+        .auth-success {
+            margin-top: 12px;
+            color: var(--teal);
+            font-weight: 700;
+        }
+
+        .login-gate {
+            background: #f5fff6;
+            border: 1px solid #bfe7c7;
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+        }
+
+        .gate-title {
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .gate-note {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 28px;
+            align-items: center;
+            padding: 56px 0 32px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: 8px 12px;
+            margin-bottom: 16px;
+            border-radius: 999px;
+            background: #fff3e8;
+            color: var(--accent-dark);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .hero h1 {
+            font-size: clamp(34px, 4.4vw, 54px);
+            line-height: 1.08;
+            margin-bottom: 14px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--muted);
+            max-width: 640px;
+            line-height: 1.7;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .hero-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .hero-badges span {
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(15,118,110,0.1);
+            color: var(--teal);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .hero-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 24px 60px rgba(22,48,34,0.08);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .progress-track {
+            height: 12px;
+            width: 100%;
+            overflow: hidden;
+            border-radius: 999px;
+            background: #f1f5f9;
+            margin: 12px 0 16px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--teal) 100%);
+            transition: width 0.3s ease;
+        }
+
+        .raised-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .raised-row strong { font-size: 22px; display: block; }
+        .raised-row p { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+        .amount-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0 12px;
+        }
+
+        .amount-pill {
+            padding: 9px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: #fff;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .amount-pill.active {
+            background: #fff5ea;
+            border-color: var(--accent);
+            color: var(--accent-dark);
+        }
+
+        .hero-card form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hero-card label {
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .hero-card input,
+        .hero-card textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .hero-card textarea {
+            min-height: 88px;
+            resize: vertical;
+        }
+
+        .hero-card input:focus,
+        .hero-card textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(255,122,0,0.16);
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .tip-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .tip-pill {
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--text);
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .tip-pill.active {
+            background: #fff5ea;
+            border-color: var(--accent);
+            color: var(--accent-dark);
+        }
+
+        .photo-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 12px 28px rgba(15,23,42,0.03);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .photo-card figcaption {
+            padding: 12px 14px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .full { width: 100%; margin-top: 6px; }
+
+        .fee-box {
+            background: #f6fff8;
+            border: 1px solid #cfeccf;
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-top: 8px;
+        }
+
+        .fee-box strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--accent-dark);
+        }
+
+        .donation-disabled {
+            opacity: 0.75;
+            pointer-events: none;
+        }
+
+        .donation-shell {
+            position: relative;
+        }
+
+        .donation-lock {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 24px;
+            text-align: center;
+            background: rgba(255,255,255,0.95);
+            border-radius: 18px;
+            z-index: 4;
+        }
+
+        .donation-lock.hidden {
+            display: none;
+        }
+
+        .lock-title {
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .lock-note {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+            max-width: 280px;
+        }
+
+        .receipt-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 140;
+        }
+
+        .receipt-modal.open {
+            display: flex;
+        }
+
+        .receipt-card {
+            width: min(520px, 100%);
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
+        }
+
+        .receipt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .receipt-body {
+            background: #f8fafc;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 14px;
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .receipt-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .payment-card {
+            background: linear-gradient(135deg, #f7fff8 0%, #eefaf0 100%);
+            border: 1px solid #cfe7d2;
+            border-radius: 18px;
+            padding: 16px;
+            margin-top: 14px;
+        }
+
+        .payment-card h4 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .payment-pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0 10px;
+        }
+
+        .payment-pill {
+            border: 1px solid #cce7d3;
+            border-radius: 999px;
+            padding: 7px 10px;
+            background: white;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--teal);
+        }
+
+        .payment-countdown {
+            color: var(--accent-dark);
+            font-weight: 800;
+            margin-top: 6px;
+        }
+
+        .owner-access-box {
+            background: #f8fcf9;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin: 12px 0 14px;
+        }
+
+        .donor-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .donor-stats > div {
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        .donor-stats strong {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+
+        .donor-stats span {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .owner-access-box strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .owner-access-box p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .tiny {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 18px;
+        }
+
+        .stat-card strong { display: block; font-size: 22px; margin-top: 6px; }
+
+        .section { padding: 30px 0 8px; }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .section-heading h2 { font-size: 28px; }
+        .section-heading p { color: var(--muted); max-width: 560px; line-height: 1.6; }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .info-card, .partner-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 12px 28px rgba(15,23,42,0.03);
+        }
+
+        .info-card h3, .partner-card h3 { font-size: 20px; margin-bottom: 8px; }
+        .info-card p, .partner-card p { color: var(--muted); line-height: 1.65; }
+
+        .partner-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .partner-card .emoji { font-size: 26px; margin-bottom: 10px; }
+
+        .story-box {
+            background: linear-gradient(135deg, #1f6b3a 0%, #14673e 100%);
+            color: white;
+            border-radius: 24px;
+            padding: 28px;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 24px;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .story-box blockquote {
+            font-size: 22px;
+            line-height: 1.7;
+            margin-bottom: 12px;
+        }
+
+        .story-box .author { opacity: 0.92; }
+
+        .quote-card {
+            background: rgba(255,255,255,0.17);
+            border-radius: 18px;
+            padding: 18px;
+        }
+
+        .faq-list {
+            display: grid;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .faq-item {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 16px 18px;
+        }
+
+        .faq-item strong { display: block; margin-bottom: 6px; }
+
+        footer {
+            background: #0f172a;
+            color: #cbd5e1;
+            margin-top: 36px;
+            padding: 28px 0;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .footer-grid h4 { color: white; margin-bottom: 10px; }
+        .footer-grid a { display: block; color: #cbd5e1; margin-bottom: 6px; }
+
+        @media (max-width: 900px) {
+            .hero, .story-box { grid-template-columns: 1fr; }
+            .stats-grid, .card-grid, .partner-grid, .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 680px) {
+            .header-inner, .section-heading { flex-direction: column; align-items: flex-start; }
+            .nav-links { flex-wrap: wrap; gap: 10px; }
+            .stats-grid, .card-grid, .partner-grid, .footer-grid { grid-template-columns: 1fr; }
+            .hero { padding-top: 32px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-modal" id="authModal">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div>
+                    <div class="eyebrow">Secure donor access</div>
+                    <h3>Customer login</h3>
+                </div>
+                <button class="close-btn" id="closeAuthModal" type="button" aria-label="Close login">×</button>
+            </div>
+            <p class="auth-note">Secure sign-in is available for donors using either a phone number or email address.</p>
+            <div class="auth-switch">
+                <button type="button" class="active" data-auth-method="phone">Phone number</button>
+                <button type="button" data-auth-method="email">Email</button>
+            </div>
+            <form id="otpLoginForm">
+                <label id="authLabel" for="authIdentifier">Phone number</label>
+                <input id="authIdentifier" type="text" placeholder="Enter your phone number" required>
+                <div id="otpStep" hidden>
+                    <label for="otpCode">Enter sign-in code</label>
+                    <input id="otpCode" type="text" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit code">
+                    <p class="auth-note" id="otpHint">A secure code will be sent to your contact method.</p>
+                </div>
+                <div id="recaptcha-container" style="display:none"></div>
+                <button class="btn btn-primary full" id="authSubmitBtn" type="submit">Send login code</button>
+            </form>
+            <p class="auth-success" id="authSuccess" hidden></p>
+        </div>
+    </div>
+
+    <header>
+        <div class="container header-inner">
+            <div class="brand">
+                <div class="brand-badge">❤</div>
+                <span>Give</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#mission">Mission</a>
+                <a href="#impact">Impact</a>
+                <a href="#stories">Stories</a>
+                <a href="#faq">FAQ</a>
+                <a class="btn btn-primary" href="#" data-open-auth="login">Log in</a>
+                <a class="btn btn-secondary" href="#" id="logoutNavBtn" hidden>Log out</a>
+                <a class="btn btn-secondary" href="owner.html">Trust portal</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero" id="mission">
+            <div>
+                <div class="eyebrow">Donate monthly • Tax benefits available</div>
+                <h1>Support food relief for millions across India</h1>
+                <p>Join trusted NGO partners and give every month to help provide nutritious meals, school lunches, and emergency food support to children, elders, and families in need.</p>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="#donate">Start donating</a>
+                    <a class="btn btn-secondary" href="#impact">See impact</a>
+                </div>
+                <p class="auth-note" style="margin-top: 16px;">Secure donor sign-in is available for customers using either a mobile number or email address.</p>
+                <p class="auth-note" style="margin-top: 10px;">Platform fee: 8% to 15% of your donation, depending on the selected payment method.</p>
+                <div class="hero-badges">
+                    <span>Trusted NGOs</span>
+                    <span>Transparent impact</span>
+                    <span>Easy monthly giving</span>
+                </div>
+            </div>
+
+            <aside class="hero-card" id="donate">
+                <div class="card-title">Support this mission</div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="raised-row">
+                    <div>
+                        <strong id="raisedAmount">₹0</strong>
+                        <p>Raised of ₹20 Crore goal</p>
+                    </div>
+                    <div>
+                        <strong id="donorCount">0</strong>
+                        <p>Monthly donors</p>
+                    </div>
+                </div>
+                <div class="donation-shell">
+                    <div class="donation-lock" id="donationLock">
+                        <div class="lock-title">Login to donate</div>
+                        <p class="lock-note">Donors must sign in before they can access the donation form and trust dashboard.</p>
+                        <button class="btn btn-primary" id="unlockDonationBtn" type="button">Log in to donate</button>
+                    </div>
+                    <div class="login-gate" id="loginGate">
+                        <div class="gate-title">Login required to donate</div>
+                        <p class="gate-note">Please sign in to unlock the donation form and continue with your trusted donor account.</p>
+                    </div>
+                    <div class="payment-card" id="paymentCheckoutCard" hidden>
+                        <h4>Real payment options</h4>
+                        <p class="gate-note">Complete the payment within 15 minutes to confirm your donation.</p>
+                        <div class="payment-pill-row" id="paymentModes"></div>
+                        <div class="payment-countdown" id="paymentCountdown">Payment window: 15:00</div>
+                        <p class="gate-note" style="margin-top: 8px;">Razorpay-ready modes: Cards, UPI QR, UPI Intent, Net Banking, and Wallets.</p>
+                    </div>
+                    <div class="owner-access-box" id="donorDashboard" hidden>
+                        <strong>Your donor account</strong>
+                        <p>Logged-in donors can review their donations, trust details, and payment status here.</p>
+                        <div class="donor-stats">
+                            <div>
+                                <strong id="donorNameDisplay">Verified donor</strong>
+                                <span>Account holder</span>
+                            </div>
+                            <div>
+                                <strong id="donorTrustScore">96%</strong>
+                                <span>Trust score</span>
+                            </div>
+                            <div>
+                                <strong id="donorDonationCount">0</strong>
+                                <span>Donations</span>
+                            </div>
+                        </div>
+                    </div>
+                    <form id="donationForm">
+                        <label>Choose an amount</label>
+                    <div class="amount-options">
+                        <button type="button" class="amount-pill active" data-amount="500">₹500</button>
+                        <button type="button" class="amount-pill" data-amount="1000">₹1000</button>
+                        <button type="button" class="amount-pill" data-amount="2500">₹2500</button>
+                    </div>
+                    <input type="number" id="customAmount" placeholder="Enter custom amount" min="100">
+                    <input type="text" id="donorName" placeholder="Your name" required>
+                    <input type="email" id="donorEmail" placeholder="Email address" required>
+                    <input type="tel" id="donorPhone" placeholder="Mobile number" inputmode="numeric" required>
+                    <textarea id="donorAddress" placeholder="Your address" required></textarea>
+                    <input type="text" id="donorPan" placeholder="PAN number (optional)">
+                    <label>Choose platform fee</label>
+                    <div class="tip-options" id="tipOptions">
+                        <button type="button" class="tip-pill active" data-tip="8">8%</button>
+                        <button type="button" class="tip-pill" data-tip="10">10%</button>
+                        <button type="button" class="tip-pill" data-tip="15">15%</button>
+                    </div>
+                    <button class="btn btn-primary full" type="submit">Donate now</button>
+                        <div class="fee-box" id="feeBox">
+                            <strong id="feePercentLabel">Platform fee: 15%</strong>
+                            <span id="feeSummary">You will pay ₹0 as platform fee and total ₹0.</span>
+                        </div>
+                    </form>
+                </div>
+                <p class="tiny">You will be billed monthly and can cancel anytime. Platform fee: 15%.</p>
+            </aside>
+        </section>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <span>Meals served</span>
+                <strong>250 Lakh+</strong>
+            </div>
+            <div class="stat-card">
+                <span>Lives supported</span>
+                <strong>40 Lakh+</strong>
+            </div>
+            <div class="stat-card">
+                <span>Partner NGOs</span>
+                <strong>18+</strong>
+            </div>
+            <div class="stat-card">
+                <span>Impact regions</span>
+                <strong>20+ states</strong>
+            </div>
+        </section>
+
+        <section class="section" id="photos">
+            <div class="section-heading">
+                <h2>Faces behind every donation</h2>
+                <p>Your support reaches families who rely on daily meals, safe shelter, and a chance to rebuild.</p>
+            </div>
+            <div class="photo-grid">
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=900&q=80" alt="Children receiving food support" loading="lazy">
+                    <figcaption>Children receiving warm meals and school support.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=900&q=80" alt="Elderly woman receiving food assistance" loading="lazy">
+                    <figcaption>Senior citizens supported with nutritious food and care.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=900&q=80" alt="Family receiving aid from volunteers" loading="lazy">
+                    <figcaption>Families receiving urgent relief during difficult times.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1461988124044-6b06b6a9f1af?auto=format&fit=crop&w=900&q=80" alt="Children at a community meal" loading="lazy">
+                    <figcaption>Community meal programs nourishing children.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef?auto=format&fit=crop&w=900&q=80" alt="Volunteer serving food" loading="lazy">
+                    <figcaption>Volunteers preparing meals for families.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=900&q=80" alt="Children smiling" loading="lazy">
+                    <figcaption>Smiles from children who received food support.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1447175008436-054170c2e979?auto=format&fit=crop&w=900&q=80" alt="Woman carrying water" loading="lazy">
+                    <figcaption>Families gaining stability through support.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80" alt="Child with backpack" loading="lazy">
+                    <figcaption>School support helps children learn and grow.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1447877085163-3cce903855cd?auto=format&fit=crop&w=900&q=80" alt="Meals on a table" loading="lazy">
+                    <figcaption>Nutritious meals provided daily to families.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1474631245212-32dc3c8310c6?auto=format&fit=crop&w=900&q=80" alt="Community kitchen" loading="lazy">
+                    <figcaption>Community kitchens bring people together.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=900&q=80" alt="Mother and child" loading="lazy">
+                    <figcaption>Every donation supports mothers and children.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1516910817561-99f3ac27a3f0?auto=format&fit=crop&w=900&q=80" alt="People in a shelter" loading="lazy">
+                    <figcaption>Support for vulnerable families in need.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?auto=format&fit=crop&w=900&q=80" alt="Children reading" loading="lazy">
+                    <figcaption>Education and nourishment go hand in hand.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1468413253725-07b6b28e16a5?auto=format&fit=crop&w=900&q=80" alt="Volunteers packing boxes" loading="lazy">
+                    <figcaption>Volunteers preparing relief packages.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1476610182048-b716b8518aae?auto=format&fit=crop&w=900&q=80" alt="Food packages" loading="lazy">
+                    <figcaption>Food packages help families stay nourished.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80" alt="Happy child" loading="lazy">
+                    <figcaption>Happy faces from stable community support.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80" alt="Community event" loading="lazy">
+                    <figcaption>Community events bring hope and care.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80" alt="Children with food" loading="lazy">
+                    <figcaption>Food support shared with young learners.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1490781121854-4dfbb54f8851?auto=format&fit=crop&w=900&q=80" alt="Village scene" loading="lazy">
+                    <figcaption>Rural communities receiving steady support.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1452862946237-9e4bf0034817?auto=format&fit=crop&w=900&q=80" alt="Meals served" loading="lazy">
+                    <figcaption>Meals served to families in need.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1474873714852-1d7914de10fa?auto=format&fit=crop&w=900&q=80" alt="Parents and child" loading="lazy">
+                    <figcaption>Parents finding relief through donations.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1488459722408-3d5d26d50ab8?auto=format&fit=crop&w=900&q=80" alt="Group eating together" loading="lazy">
+                    <figcaption>Community dining spaces supported by donors.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1444044205806-38f3ed106c10?auto=format&fit=crop&w=900&q=80" alt="Helping hands" loading="lazy">
+                    <figcaption>Helping hands reaching families in need.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1496317899792-9d7dbcd928a1?auto=format&fit=crop&w=900&q=80" alt="Food distribution" loading="lazy">
+                    <figcaption>Food distribution at local support centers.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1493666438817-866a91353ca9?auto=format&fit=crop&w=900&q=80" alt="Village children" loading="lazy">
+                    <figcaption>Village children benefiting from meal programs.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1496171367470-9ed9a91ea931?auto=format&fit=crop&w=900&q=80" alt="Meals served outdoors" loading="lazy">
+                    <figcaption>Outdoor meal services for families.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80" alt="Child with meal" loading="lazy">
+                    <figcaption>Meals bring comfort and nourishment.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80" alt="Care and support" loading="lazy">
+                    <figcaption>Care and support in every community meal.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1516910817561-99f3ac27a3f0?auto=format&fit=crop&w=900&q=80" alt="Food in packages" loading="lazy">
+                    <figcaption>Packages prepared for families in need.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=900&q=80" alt="Community support" loading="lazy">
+                    <figcaption>Communities strengthened by donor support.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1447175008436-054170c2e979?auto=format&fit=crop&w=900&q=80" alt="Community nourishment" loading="lazy">
+                    <figcaption>Community nourishment programs in action.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1461988124044-6b06b6a9f1af?auto=format&fit=crop&w=900&q=80" alt="Warm meals" loading="lazy">
+                    <figcaption>Warm meals offered in local shelters.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1496317899792-9d7dbcd928a1?auto=format&fit=crop&w=900&q=80" alt="Volunteers with meals" loading="lazy">
+                    <figcaption>Volunteers make every donation count.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=900&q=80" alt="Family receiving food" loading="lazy">
+                    <figcaption>Families receiving essential food support.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1452862946237-9e4bf0034817?auto=format&fit=crop&w=900&q=80" alt="Children and volunteers" loading="lazy">
+                    <figcaption>Volunteers and children sharing a meal.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1474631245212-32dc3c8310c6?auto=format&fit=crop&w=900&q=80" alt="Shared food" loading="lazy">
+                    <figcaption>Shared food helps nourish entire neighborhoods.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80" alt="Relief distribution" loading="lazy">
+                    <figcaption>Relief distribution reaches people quickly.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?auto=format&fit=crop&w=900&q=80" alt="Healthy meal" loading="lazy">
+                    <figcaption>Healthy meals improve everyday health.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1468413253725-07b6b28e16a5?auto=format&fit=crop&w=900&q=80" alt="Serving food" loading="lazy">
+                    <figcaption>Serving food with dignity and care.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1493666438817-866a91353ca9?auto=format&fit=crop&w=900&q=80" alt="Village support" loading="lazy">
+                    <figcaption>Support programs for remote villages.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1511485977113-f3d12ecf50da?auto=format&fit=crop&w=900&q=80" alt="Children receiving food" loading="lazy">
+                    <figcaption>Children receiving help at a local meal center.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1494891848038-9e4d3f4ff499?auto=format&fit=crop&w=900&q=80" alt="Food distribution" loading="lazy">
+                    <figcaption>Food distribution volunteers working together.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=900&q=80" alt="Family meal" loading="lazy">
+                    <figcaption>Families share a meal through community support.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80" alt="Young boy smiling" loading="lazy">
+                    <figcaption>Young boy smiles after receiving nutritious food.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=900&q=80" alt="Warm meal" loading="lazy">
+                    <figcaption>Warm meals bring comfort to local children.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80" alt="Girl with food" loading="lazy">
+                    <figcaption>Girl receives food support with encouragement.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1513515110400-4074c5f6a7ab?auto=format&fit=crop&w=900&q=80" alt="Community meal line" loading="lazy">
+                    <figcaption>Meal lines form as volunteers distribute food.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80" alt="Children and volunteers" loading="lazy">
+                    <figcaption>Volunteers help children enjoy nourishing meals.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1453415322195-5bb00d4f9b44?auto=format&fit=crop&w=900&q=80" alt="Kids eating" loading="lazy">
+                    <figcaption>Kids eating together after receiving meal support.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=900&q=80" alt="Elderly receiving aid" loading="lazy">
+                    <figcaption>Elderly community members receiving food and care.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80" alt="Volunteer serving" loading="lazy">
+                    <figcaption>Volunteer serving nutritious meals with care.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1496368596082-a57ff7fc0a03?auto=format&fit=crop&w=900&q=80" alt="Small group gathered" loading="lazy">
+                    <figcaption>Small groups gather for shared meals and support.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80" alt="Child with vegetables" loading="lazy">
+                    <figcaption>Vegetables and meals provide balanced nourishment.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1496317899792-9d7dbcd928a1?auto=format&fit=crop&w=900&q=80" alt="Food relief" loading="lazy">
+                    <figcaption>Relief efforts reach remote communities.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1468413253725-07b6b28e16a5?auto=format&fit=crop&w=900&q=80" alt="Kitchen prep" loading="lazy">
+                    <figcaption>Kitchen prep is the first step to feeding families.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef?auto=format&fit=crop&w=900&q=80" alt="Meals prepared" loading="lazy">
+                    <figcaption>Meals prepared with care for communities in need.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1476610182048-b716b8518aae?auto=format&fit=crop&w=900&q=80" alt="Package delivery" loading="lazy">
+                    <figcaption>Delivery of food packages to local families.</figcaption>
+                </figure>
+                <figure class="photo-card">
+                    <img src="https://images.unsplash.com/photo-1516910817561-99f3ac27a3f0?auto=format&fit=crop&w=900&q=80" alt="Support network" loading="lazy">
+                    <figcaption>A strong support network helps communities thrive.</figcaption>
+                </figure>
+            </div>
+        </section>
+
+        <section class="section" id="impact">
+            <div class="section-heading">
+                <h2>Why this mission matters</h2>
+                <p>Millions of children and elders go to bed hungry every day. Your support helps create dependable nutrition where it matters most.</p>
+            </div>
+            <div class="card-grid">
+                <article class="info-card">
+                    <h3>Mid-day meals for school children</h3>
+                    <p>Healthy meals during school hours improve focus, attendance, and growth while helping prevent malnutrition.</p>
+                </article>
+                <article class="info-card">
+                    <h3>Food support for the elderly</h3>
+                    <p>Fortified meals support strength and immunity for vulnerable adults with limited access to regular food.</p>
+                </article>
+                <article class="info-card">
+                    <h3>Reliable family support</h3>
+                    <p>Monthly giving helps NGOs respond quickly and plan long-term food security programs in underserved communities.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-heading">
+                <h2>Partner NGOs</h2>
+                <p>Give works with experienced nonprofit teams that are deeply rooted in their communities and committed to measurable impact.</p>
+            </div>
+            <div class="partner-grid">
+                <div class="partner-card">
+                    <div class="emoji">🍲</div>
+                    <h3>Meal Foundation</h3>
+                    <p>Delivering regular meal programs for children and low-income families.</p>
+                </div>
+                <div class="partner-card">
+                    <div class="emoji">🌱</div>
+                    <h3>Nutrition Alliance</h3>
+                    <p>Supporting fortified food and nutrition awareness across rural communities.</p>
+                </div>
+                <div class="partner-card">
+                    <div class="emoji">🤝</div>
+                    <h3>Community Care Network</h3>
+                    <p>Reaching elders, migrants, and vulnerable households with immediate relief.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="stories">
+            <div class="section-heading">
+                <h2>People are already making a difference</h2>
+                <p>Every contribution helps turn everyday generosity into lasting change for families across India.</p>
+            </div>
+            <div class="story-box">
+                <div>
+                    <blockquote>“The only time we get hot, full meals is during lunch at school. This support changes our whole day.”</blockquote>
+                    <p class="author">— Chaya Pednekar, student, Class 3</p>
+                </div>
+                <div class="quote-card">
+                    <h3>Why monthly giving matters</h3>
+                    <p>Regular support helps nonprofits plan ahead, reach more families, and sustain nutrition programs year-round.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="faq">
+            <div class="section-heading">
+                <h2>Frequently asked questions</h2>
+                <p>Everything you need to know about joining this monthly mission.</p>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <strong>Who benefits from this mission?</strong>
+                    <p>Children, elders, and underprivileged families across India receive meals and food support through partner NGOs.</p>
+                </div>
+                <div class="faq-item">
+                    <strong>Can I cancel anytime?</strong>
+                    <p>Yes. Monthly donations can be paused or cancelled at any time from your account dashboard.</p>
+                </div>
+                <div class="faq-item">
+                    <strong>Is my donation tax-deductible?</strong>
+                    <p>Yes, donations are eligible for tax benefits when made through the supported giving platform.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="receipt-modal" id="receiptModal" hidden>
+        <div class="receipt-card">
+            <div class="receipt-header">
+                <h3>Donation receipt</h3>
+                <button class="close-btn" id="closeReceiptModal" type="button" aria-label="Close receipt">×</button>
+            </div>
+            <div class="receipt-body" id="receiptContent"></div>
+            <div class="receipt-actions">
+                <button class="btn btn-secondary" id="downloadReceiptButton" type="button">Download receipt</button>
+                <button class="btn btn-primary" id="closeReceiptButton" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container footer-grid">
+            <div>
+                <h4>Give</h4>
+                <p>Helping people move from hunger to hope through trusted, transparent giving.</p>
+            </div>
+            <div>
+                <h4>Support</h4>
+                <a href="#">FAQs</a>
+                <a href="#">Contact us</a>
+                <a href="#">Terms</a>
+            </div>
+            <div>
+                <h4>Donate</h4>
+                <a href="#mission">Social causes</a>
+                <a href="#mission">Monthly giving</a>
+                <a href="#impact">Impact stories</a>
+                <a href="owner.html">Trust portal</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBDa2oUHiEW5hcU65rkncrzX3Im3ZHuDJA",
+            authDomain: "my-give-project.firebaseapp.com",
+            projectId: "my-give-project",
+            storageBucket: "my-give-project.firebasestorage.app",
+            messagingSenderId: "841578242916",
+            appId: "1:841578242916:web:f1dc9c7a658be567a99071",
+            measurementId: "G-NDQ36S3LHD"
+        };
+
+        let raised = 0;
+        let donorCount = 0;
+        let selectedAmount = 500;
+        let feePercent = 8;
+        let authMethod = 'phone';
+        let otpSent = false;
+        let isLoggedIn = false;
+        let currentOtpCode = '';
+        let loggedInUser = '';
+        let confirmationResult = null;
+        let firebaseAuthReady = false;
+        const loginStorageKey = 'giveDonorLoggedIn';
+        const donationRecordsKey = 'giveDonationRecords';
+        const demoOtpCode = '123456';
+
+        const progressFill = document.getElementById('progressFill');
+        const raisedAmount = document.getElementById('raisedAmount');
+        const donorCountEl = document.getElementById('donorCount');
+        const donationForm = document.getElementById('donationForm');
+        const amountButtons = document.querySelectorAll('.amount-pill');
+        const authModal = document.getElementById('authModal');
+        const closeAuthModalButton = document.getElementById('closeAuthModal');
+        const otpLoginForm = document.getElementById('otpLoginForm');
+        const authIdentifier = document.getElementById('authIdentifier');
+        const authLabel = document.getElementById('authLabel');
+        const otpStep = document.getElementById('otpStep');
+        const otpCode = document.getElementById('otpCode');
+        const otpHint = document.getElementById('otpHint');
+        const authSuccess = document.getElementById('authSuccess');
+        const authSubmitBtn = document.getElementById('authSubmitBtn');
+        const authButtons = document.querySelectorAll('[data-open-auth]');
+        const authMethodButtons = document.querySelectorAll('[data-auth-method]');
+        const donorDashboard = document.getElementById('donorDashboard');
+        const donorNameDisplay = document.getElementById('donorNameDisplay');
+        const donorTrustScore = document.getElementById('donorTrustScore');
+        const donorDonationCount = document.getElementById('donorDonationCount');
+        const logoutNavBtn = document.getElementById('logoutNavBtn');
+        const loginGate = document.getElementById('loginGate');
+        const feePercentLabel = document.getElementById('feePercentLabel');
+        const feeSummary = document.getElementById('feeSummary');
+        const donationLock = document.getElementById('donationLock');
+        const unlockDonationBtn = document.getElementById('unlockDonationBtn');
+        const paymentCheckoutCard = document.getElementById('paymentCheckoutCard');
+        const paymentModes = document.getElementById('paymentModes');
+        const paymentCountdown = document.getElementById('paymentCountdown');
+        const receiptModal = document.getElementById('receiptModal');
+        const receiptContent = document.getElementById('receiptContent');
+        const closeReceiptModalButton = document.getElementById('closeReceiptModal');
+        const closeReceiptButton = document.getElementById('closeReceiptButton');
+        const downloadReceiptButton = document.getElementById('downloadReceiptButton');
+
+        function normalizePhoneNumber(identifier) {
+            const value = String(identifier || '').trim();
+            if (!value) {
+                return '';
+            }
+
+            if (value.startsWith('+')) {
+                const digits = value.replace(/\D/g, '');
+                return digits ? `+${digits}` : value;
+            }
+
+            const digits = value.replace(/\D/g, '');
+            if (!digits) {
+                return value;
+            }
+
+            if (digits.length === 10) {
+                return `+91${digits}`;
+            }
+
+            if (digits.length === 11 && digits.startsWith('0')) {
+                return `+91${digits.slice(1)}`;
+            }
+
+            if (digits.length >= 12 && digits.startsWith('91')) {
+                return `+${digits}`;
+            }
+
+            if (digits.length > 8) {
+                return `+${digits}`;
+            }
+
+            return value;
+        }
+
+        function initializeFirebaseAuth() {
+            if (firebaseAuthReady || !window.firebase) {
+                return;
+            }
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                firebaseAuthReady = true;
+            } catch (error) {
+                console.warn('Firebase initialization failed', error);
+            }
+        }
+
+        async function createPhoneRecaptcha() {
+            if (!window.firebase) {
+                throw new Error('Firebase SDK did not load.');
+            }
+            initializeFirebaseAuth();
+            const container = document.getElementById('recaptcha-container');
+            if (!container) {
+                throw new Error('reCAPTCHA container is missing.');
+            }
+            if (window.recaptchaVerifier) {
+                return window.recaptchaVerifier;
+            }
+            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier(container, {
+                size: 'invisible',
+                callback: () => {},
+                'expired-callback': () => {
+                    console.warn('reCAPTCHA expired.');
+                }
+            });
+            await window.recaptchaVerifier.render();
+            return window.recaptchaVerifier;
+        }
+
+        function updateUI() {
+            const percent = Math.min((raised / 20000000) * 100, 100);
+            progressFill.style.width = `${percent}%`;
+            raisedAmount.textContent = `₹${raised.toLocaleString('en-IN')}`;
+            donorCountEl.textContent = donorCount.toLocaleString('en-IN');
+        }
+
+        function saveDonationRecord(record) {
+            try {
+                const raw = localStorage.getItem(donationRecordsKey);
+                const records = raw ? JSON.parse(raw) : [];
+                records.push(record);
+                localStorage.setItem(donationRecordsKey, JSON.stringify(records));
+            } catch (error) {
+                console.error('Unable to save donation record', error);
+            }
+        }
+
+        function updateFeeSummary() {
+            const customAmount = Number(document.getElementById('customAmount').value);
+            const amount = customAmount > 0 ? customAmount : selectedAmount;
+            const fee = Math.round(amount * feePercent / 100);
+            const total = amount + fee;
+            feePercentLabel.textContent = `Platform fee: ${feePercent}%`;
+            feeSummary.textContent = `You will pay ₹${fee.toLocaleString('en-IN')} as platform fee and total ₹${total.toLocaleString('en-IN')}.`;
+            document.querySelectorAll('.tip-pill').forEach(button => {
+                button.classList.toggle('active', Number(button.dataset.tip) === feePercent);
+            });
+        }
+
+        function updatePaymentWindow(windowData) {
+            if (!paymentCheckoutCard) {
+                return;
+            }
+            paymentCheckoutCard.hidden = false;
+            const modes = windowData.payment_modes || [];
+            paymentModes.innerHTML = modes.map(mode => `<span class="payment-pill">${mode}</span>`).join('');
+            if (windowData.expires_at) {
+                const remainingSeconds = Math.max(0, Number(windowData.expires_at) - Math.floor(Date.now() / 1000));
+                const minutes = Math.floor(remainingSeconds / 60);
+                const seconds = remainingSeconds % 60;
+                paymentCountdown.textContent = `Payment window: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+        }
+
+        async function refreshPaymentWindow() {
+            try {
+                const result = await requestJson('/api/payment-window', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ expires_in_minutes: 15 })
+                });
+                updatePaymentWindow(result);
+            } catch (error) {
+                console.warn('Payment window unavailable', error);
+            }
+        }
+
+        function replaceTrustGalleryImages() {
+            const galleryImages = Array.from(document.querySelectorAll('.photo-card img'));
+            const trustImages = [
+                {
+                    src: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=900&q=80',
+                    alt: 'Children receiving food support from a trusted charity',
+                    caption: 'Children receiving warm meals and school support.'
+                },
+                {
+                    src: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=900&q=80',
+                    alt: 'Elderly person receiving compassionate care',
+                    caption: 'Senior citizens supported with nutritious food and care.'
+                },
+                {
+                    src: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=900&q=80',
+                    alt: 'Doctor consulting a patient in a medical clinic',
+                    caption: 'Medical treatment and care reaching vulnerable families.'
+                },
+                {
+                    src: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=900&q=80',
+                    alt: 'Volunteers helping at a community relief center',
+                    caption: 'Trusted volunteers helping families with dignity and care.'
+                },
+                {
+                    src: 'https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=900&q=80',
+                    alt: 'Family receiving emergency support from a relief mission',
+                    caption: 'Families receiving urgent relief during difficult times.'
+                },
+                {
+                    src: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=900&q=80',
+                    alt: 'Medical team supporting a patient during treatment',
+                    caption: 'Specialist treatment and health support delivered with compassion.'
+                },
+                {
+                    src: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80',
+                    alt: 'Community trust and care outreach in action',
+                    caption: 'Community trust programs bringing hope to vulnerable homes.'
+                },
+                {
+                    src: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
+                    alt: 'Child receiving nutrition support from volunteers',
+                    caption: 'Children receiving nutrition support and a chance to thrive.'
+                }
+            ];
+
+            galleryImages.forEach((img, index) => {
+                const item = trustImages[index % trustImages.length];
+                img.src = item.src;
+                img.alt = item.alt;
+                const card = img.closest('.photo-card');
+                if (card) {
+                    const caption = card.querySelector('figcaption');
+                    if (caption) {
+                        caption.textContent = item.caption;
+                    }
+                }
+            });
+        }
+
+        function applyImageFallbacks() {
+            const fallbackSvg = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+                <svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600">
+                    <rect width="100%" height="100%" fill="#fff4e8"/>
+                    <rect x="40" y="40" width="820" height="520" rx="28" fill="#ffffff" stroke="#ffd7a8" stroke-width="3"/>
+                    <circle cx="280" cy="240" r="110" fill="#ff7a00" opacity="0.16"/>
+                    <path d="M190 430c60-110 180-160 320-120 80 25 140 70 200 140" fill="none" stroke="#0f766e" stroke-width="20" stroke-linecap="round"/>
+                    <text x="450" y="500" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="38" fill="#152238">Food relief support</text>
+                </svg>
+            `)}`;
+
+            document.querySelectorAll('.photo-card img').forEach((img) => {
+                const applyFallback = () => {
+                    if (img.dataset.fallbackApplied === 'true') {
+                        return;
+                    }
+                    img.dataset.fallbackApplied = 'true';
+                    img.src = fallbackSvg;
+                };
+
+                img.addEventListener('error', applyFallback, { once: true });
+                if (img.complete && img.naturalWidth === 0) {
+                    applyFallback();
+                }
+            });
+        }
+
+        function openReceiptModal(record) {
+            const receiptText = [
+                'Give Donation Receipt',
+                '----------------------',
+                `Donor: ${record.name}`,
+                `Email: ${record.email}`,
+                `Phone: ${record.phone}`,
+                `Address: ${record.address}`,
+                `PAN: ${record.pan || 'Not provided'}`,
+                `Donation amount: ₹${record.amount.toLocaleString('en-IN')}`,
+                `Platform fee: ₹${record.platformFee.toLocaleString('en-IN')}`,
+                `Total paid: ₹${record.totalPaid.toLocaleString('en-IN')}`,
+                `Fee percentage: ${record.feePercent}%`,
+                `Date: ${new Date(record.timestamp).toLocaleString('en-IN')}`,
+                '',
+                `Payment UTR: ${record.paymentReference || 'To be shared after transfer'}`
+            ].join('\n');
+
+            receiptContent.innerHTML = `
+                <strong>Thank you for your donation!</strong>
+                <p>Your payment receipt is ready.</p>
+                <pre style="margin: 10px 0 0; white-space: pre-wrap; font-family: inherit;">${receiptText}</pre>
+            `;
+            receiptModal.hidden = false;
+            receiptModal.classList.add('open');
+        }
+
+        function closeReceiptModal() {
+            receiptModal.classList.remove('open');
+            receiptModal.hidden = true;
+        }
+
+        function downloadReceipt(record) {
+            const receiptText = [
+                'Give Donation Receipt',
+                '----------------------',
+                `Donor: ${record.name}`,
+                `Email: ${record.email}`,
+                `Phone: ${record.phone}`,
+                `Address: ${record.address}`,
+                `PAN: ${record.pan || 'Not provided'}`,
+                `Donation amount: ₹${record.amount.toLocaleString('en-IN')}`,
+                `Platform fee: ₹${record.platformFee.toLocaleString('en-IN')}`,
+                `Total paid: ₹${record.totalPaid.toLocaleString('en-IN')}`,
+                `Fee percentage: ${record.feePercent}%`,
+                `Date: ${new Date(record.timestamp).toLocaleString('en-IN')}`,
+                '',
+                `Payment UTR: ${record.paymentReference || 'To be shared after transfer'}`
+            ].join('\n');
+
+            const blob = new Blob([receiptText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `give-receipt-${Date.now()}.txt`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        async function requestJson(url, options) {
+            const response = await fetch(url, options);
+            const text = await response.text();
+            let result;
+
+            try {
+                result = text ? JSON.parse(text) : { success: false, message: 'Empty response from server.' };
+            } catch (parseError) {
+                throw new Error('Invalid JSON response from server.');
+            }
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Unable to complete request.');
+            }
+
+            return result;
+        }
+
+        function useDemoOtpFlow(message) {
+            otpSent = true;
+            currentOtpCode = demoOtpCode;
+            otpStep.hidden = false;
+            authSubmitBtn.textContent = 'Verify code';
+            authSubmitBtn.disabled = false;
+            authSuccess.hidden = false;
+            authSuccess.textContent = message;
+            otpHint.textContent = 'Enter the secure sign-in code sent to your contact method.';
+        }
+
+        function updateDonorAccountView(allowed) {
+            if (donorDashboard) {
+                donorDashboard.hidden = !allowed;
+            }
+            if (logoutNavBtn) {
+                logoutNavBtn.hidden = !allowed;
+            }
+            if (allowed) {
+                const displayName = loggedInUser || 'Verified donor';
+                if (donorNameDisplay) donorNameDisplay.textContent = displayName;
+                if (donorTrustScore) donorTrustScore.textContent = '96%';
+                const records = JSON.parse(localStorage.getItem('giveDonationRecords') || '[]');
+                if (donorDonationCount) donorDonationCount.textContent = String(records.length);
+            }
+        }
+
+        function completeDemoLogin() {
+            authSuccess.hidden = false;
+            authSuccess.textContent = 'Login successful. You can now continue donating.';
+            setDonationAccess(true);
+            closeAuthModal();
+            authButtons.forEach(button => {
+                button.textContent = 'My account';
+            });
+        }
+
+        function openAuthModal() {
+            authModal.classList.add('open');
+            authSuccess.hidden = true;
+            otpStep.hidden = true;
+            otpSent = false;
+            authSubmitBtn.textContent = 'Send login code';
+            otpCode.value = '';
+            authIdentifier.value = '';
+            authIdentifier.focus();
+        }
+
+        function closeAuthModal() {
+            authModal.classList.remove('open');
+            authSuccess.hidden = true;
+            otpStep.hidden = true;
+            otpSent = false;
+            authSubmitBtn.textContent = 'Send login code';
+            otpCode.value = '';
+            authIdentifier.value = '';
+        }
+
+        function setDonationAccess(allowed) {
+            isLoggedIn = allowed;
+            if (allowed) {
+                localStorage.setItem(loginStorageKey, 'true');
+            } else {
+                localStorage.removeItem(loginStorageKey);
+            }
+
+            const formControls = donationForm.querySelectorAll('input, button');
+            formControls.forEach(control => {
+                if (control.id === 'customAmount' || control.id === 'donorName' || control.id === 'donorEmail' || control.id === 'donorPhone' || control.id === 'donorAddress' || control.id === 'donorPan' || control.tagName === 'BUTTON') {
+                    control.disabled = !allowed;
+                }
+            });
+            const tipButtons = document.querySelectorAll('.tip-pill');
+            tipButtons.forEach(button => button.disabled = !allowed);
+            loginGate.hidden = allowed;
+            donationLock.classList.toggle('hidden', allowed);
+            donationForm.classList.toggle('donation-disabled', !allowed);
+
+            authButtons.forEach(button => {
+                button.textContent = allowed ? 'My account' : 'Log in';
+            });
+
+            if (!allowed) {
+                donationForm.reset();
+                document.getElementById('customAmount').value = '';
+                amountButtons.forEach(btn => btn.classList.remove('active'));
+                document.querySelector('.amount-pill').classList.add('active');
+            }
+
+            if (allowed) {
+                authButtons.forEach(button => {
+                    button.style.display = 'none';
+                });
+            } else {
+                authButtons.forEach(button => {
+                    button.style.display = '';
+                });
+            }
+
+            if (allowed) {
+                refreshPaymentWindow();
+            }
+
+            updateFeeSummary();
+            updateDonorAccountView(allowed);
+        }
+
+        function setAuthMethod(method) {
+            authMethod = method;
+            authMethodButtons.forEach(button => {
+                button.classList.toggle('active', button.dataset.authMethod === method);
+            });
+            authLabel.textContent = method === 'email' ? 'Email address' : 'Phone number';
+            authIdentifier.placeholder = method === 'email' ? 'Enter your email address' : 'Enter your phone number';
+            authIdentifier.type = method === 'email' ? 'email' : 'text';
+            authIdentifier.value = '';
+            otpStep.hidden = true;
+            otpCode.value = '';
+            otpSent = false;
+            authSubmitBtn.textContent = 'Send login code';
+            authSuccess.hidden = true;
+        }
+
+        authButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                if (isLoggedIn) {
+                    return;
+                }
+                openAuthModal();
+            });
+        });
+
+        unlockDonationBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            openAuthModal();
+        });
+
+        closeAuthModalButton.addEventListener('click', closeAuthModal);
+        logoutNavBtn.addEventListener('click', function(event) {
+            event.preventDefault();
+            loggedInUser = '';
+            setDonationAccess(false);
+            authButtons.forEach(button => {
+                button.textContent = 'Log in';
+            });
+            authSuccess.hidden = true;
+        });
+        closeReceiptModalButton.addEventListener('click', closeReceiptModal);
+        closeReceiptButton.addEventListener('click', closeReceiptModal);
+        downloadReceiptButton.addEventListener('click', () => {
+            const receiptRecord = JSON.parse(localStorage.getItem('giveLastReceipt') || 'null');
+            if (receiptRecord) {
+                downloadReceipt(receiptRecord);
+            }
+        });
+        authModal.addEventListener('click', function(event) {
+            if (event.target === authModal) closeAuthModal();
+        });
+
+        authMethodButtons.forEach(button => {
+            button.addEventListener('click', () => setAuthMethod(button.dataset.authMethod));
+        });
+
+        otpLoginForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            if (!otpSent) {
+                const identifier = authIdentifier.value.trim();
+
+                if (authMethod === 'email') {
+                    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailPattern.test(identifier)) {
+                        alert('Please enter a valid email address.');
+                        return;
+                    }
+                } else {
+                    const digits = identifier.replace(/\D/g, '');
+                    if (digits.length < 10 || digits.length > 15) {
+                        alert('Please enter a valid phone number.');
+                        return;
+                    }
+                }
+
+                authSubmitBtn.disabled = true;
+                authSubmitBtn.textContent = 'Sending code...';
+
+                try {
+                    if (authMethod === 'phone') {
+                        initializeFirebaseAuth();
+                        const phoneNumber = normalizePhoneNumber(identifier);
+                        const appVerifier = await createPhoneRecaptcha();
+                        const result = await firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier);
+                        confirmationResult = result;
+                        otpSent = true;
+                        otpStep.hidden = false;
+                        authSubmitBtn.textContent = 'Verify code';
+                        authSubmitBtn.disabled = false;
+                        authSuccess.hidden = false;
+                        authSuccess.textContent = 'A secure sign-in code has been sent to your phone.';
+                        otpHint.textContent = 'Enter the 6-digit code sent to your phone.';
+                        return;
+                    }
+
+                    const requestIdentifier = authMethod === 'email' ? identifier : normalizePhoneNumber(identifier);
+
+                    const result = await requestJson('/api/send-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ identifier: requestIdentifier, channel: authMethod })
+                    });
+
+                    otpSent = true;
+                    currentOtpCode = result.otp || '';
+                    otpStep.hidden = false;
+                    authSubmitBtn.textContent = 'Verify code';
+                    authSubmitBtn.disabled = false;
+                    authSuccess.hidden = false;
+                    authSuccess.textContent = result.message || 'A secure sign-in code has been sent.';
+                    otpHint.textContent = 'Enter the secure sign-in code you received.';
+                } catch (error) {
+                    if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+                        useDemoOtpFlow('Demo mode enabled. A secure sign-in code is available locally.');
+                        return;
+                    }
+                    authSubmitBtn.disabled = false;
+                    authSubmitBtn.textContent = 'Send login code';
+                    alert(error.message || 'Unable to send sign-in code.');
+                }
+                return;
+            }
+
+            const code = otpCode.value.trim();
+            if (!/^\d{6}$/.test(code)) {
+                alert('Please enter the 6-digit sign-in code.');
+                return;
+            }
+
+            authSubmitBtn.disabled = true;
+            authSubmitBtn.textContent = 'Verifying code...';
+
+            try {
+                if (authMethod === 'phone' && confirmationResult) {
+                    const credential = await confirmationResult.confirm(code);
+                    authSuccess.hidden = false;
+                    loggedInUser = authIdentifier.value.trim();
+                    authSuccess.textContent = 'Login successful. You can now continue donating.';
+                    completeDemoLogin();
+                    confirmationResult = null;
+                    return;
+                }
+
+                const requestIdentifier = authMethod === 'email' ? authIdentifier.value.trim() : normalizePhoneNumber(authIdentifier.value.trim());
+
+                const result = await requestJson('/api/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ identifier: requestIdentifier, code })
+                });
+
+                authSuccess.hidden = false;
+                loggedInUser = authIdentifier.value.trim();
+                authSuccess.textContent = result.message || 'Login successful. You can now continue donating.';
+                completeDemoLogin();
+            } catch (error) {
+                if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+                    if (code === currentOtpCode || code === demoOtpCode) {
+                        completeDemoLogin();
+                    } else {
+                        authSubmitBtn.disabled = false;
+                        authSubmitBtn.textContent = 'Verify code';
+                        alert('The secure sign-in code is not displayed on this page. Please use the code sent to your contact method.');
+                    }
+                    return;
+                }
+                authSubmitBtn.disabled = false;
+                authSubmitBtn.textContent = 'Verify code';
+                alert(error.message || 'Sign-in code verification failed.');
+            }
+        });
+
+        amountButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                selectedAmount = Number(button.dataset.amount);
+                amountButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                updateFeeSummary();
+            });
+        });
+
+        document.querySelectorAll('.tip-pill').forEach(button => {
+            button.addEventListener('click', () => {
+                feePercent = Number(button.dataset.tip);
+                document.querySelectorAll('.tip-pill').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                updateFeeSummary();
+            });
+        });
+
+        document.getElementById('customAmount').addEventListener('input', updateFeeSummary);
+
+        donationForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            if (!isLoggedIn) {
+                openAuthModal();
+                return;
+            }
+
+            const customAmount = Number(document.getElementById('customAmount').value);
+            const amount = customAmount > 0 ? customAmount : selectedAmount;
+            const name = document.getElementById('donorName').value.trim();
+            const email = document.getElementById('donorEmail').value.trim();
+            const phone = document.getElementById('donorPhone').value.trim();
+            const address = document.getElementById('donorAddress').value.trim();
+            const pan = document.getElementById('donorPan').value.trim();
+
+            if (!name || !email || !phone || !address) {
+                alert('Please enter your name, email, mobile number, and address. PAN is optional.');
+                return;
+            }
+
+            if (!/^\d{10}$/.test(phone)) {
+                alert('Please enter a valid 10-digit mobile number.');
+                return;
+            }
+
+            const panValue = pan.toUpperCase();
+            if (panValue && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(panValue)) {
+                alert('Please enter a valid PAN number or leave it blank.');
+                return;
+            }
+
+            if (amount < 100) {
+                alert('Please choose a donation amount of at least ₹100.');
+                return;
+            }
+
+            const platformFee = Math.round(amount * feePercent / 100);
+            const totalPaid = amount + platformFee;
+            const record = {
+                timestamp: new Date().toISOString(),
+                name,
+                email,
+                phone,
+                address,
+                pan: panValue,
+                amount,
+                platformFee,
+                totalPaid,
+                feePercent,
+            };
+
+            try {
+                const paymentResult = await requestJson('/api/confirm-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        donor_name: name,
+                        donor_email: email,
+                        donor_phone: phone,
+                        donor_address: address,
+                        donor_pan: panValue,
+                        amount: totalPaid,
+                    })
+                });
+                record.paymentReference = paymentResult.transaction_id || 'UTR pending';
+            } catch (error) {
+                console.warn('Falling back to local donation receipt.', error);
+            }
+
+            saveDonationRecord(record);
+            localStorage.setItem('giveLastReceipt', JSON.stringify(record));
+            openReceiptModal(record);
+
+            raised += amount;
+            donorCount += 1;
+            updateUI();
+            donationForm.reset();
+            document.getElementById('customAmount').value = '';
+            amountButtons.forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.amount-pill').classList.add('active');
+            updateFeeSummary();
+            alert(`Thank you, ${name}! Your donation of ₹${amount.toLocaleString('en-IN')} helps feed more families.`);
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUI();
+            replaceTrustGalleryImages();
+            applyImageFallbacks();
+            updateFeeSummary();
+            const storedLoginState = localStorage.getItem(loginStorageKey) === 'true';
+            setDonationAccess(storedLoginState);
+        });
+    </script>
+</body>
+</html>

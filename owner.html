@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trust Portal — Give</title>
+    <style>
+        :root {
+            --bg: #f3fbf5;
+            --surface: #ffffff;
+            --text: #163022;
+            --muted: #5b7864;
+            --accent: #2f8f4f;
+            --danger: #c2410c;
+            --line: #dcebdc;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .page-header {
+            background: linear-gradient(90deg, #f4fff7, #e3f6e8);
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: clamp(28px, 4vw, 36px);
+        }
+
+        .page-header p {
+            margin: 8px 0 0;
+            color: var(--muted);
+        }
+
+        .container {
+            width: min(1140px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 20px 0 40px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            padding: 24px;
+            box-shadow: 0 14px 40px rgba(15,23,42,0.06);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .section-title h2 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-secondary { background: white; color: var(--text); border-color: var(--line); }
+        .btn-danger { background: var(--danger); color: white; }
+
+        .login-panel,
+        .stats-grid,
+        .summary-grid,
+        .table-wrapper,
+        .profile-card {
+            margin-bottom: 18px;
+        }
+
+        .login-panel input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            margin-top: 8px;
+            font-size: 15px;
+        }
+
+        .login-panel label {
+            font-weight: 700;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .login-panel p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .summary-grid,
+        .stats-grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .summary-card,
+        .stat-card {
+            padding: 18px;
+            background: #f8fafc;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+        }
+
+        .summary-card strong,
+        .stat-card strong {
+            display: block;
+            margin-top: 10px;
+            font-size: 24px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 840px;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+
+        th { color: var(--muted); font-weight: 700; }
+        td { color: #334155; }
+
+        .hidden { display: none !important; }
+        .notice { color: var(--danger); margin-top: 10px; }
+        .small { font-size: 13px; color: var(--muted); }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <div class="container">
+            <h1>Trust Portal</h1>
+            <p>Authorized trust staff can review donation records, payment activity, and platform trust metrics through a secure sign-in.</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="card login-panel" id="ownerLoginCard">
+            <div class="section-title">
+                <h2>Trust sign-in</h2>
+            </div>
+            <p>Authorized trust staff can use a secure access code to review donation records and payment activity.</p>
+            <form id="ownerLoginForm">
+                <label for="ownerOtp">Access code</label>
+                <input id="ownerOtp" type="text" placeholder="Enter your access code" inputmode="numeric" maxlength="6" required>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:14px;">
+                    <button class="btn btn-primary" type="button" id="sendOwnerOtp">Send access code</button>
+                    <button class="btn btn-secondary" type="submit" id="verifyOwnerOtp">Verify & enter</button>
+                </div>
+                <p class="small" id="ownerLoginHint">The access code is shared only with authorized trust staff.</p>
+                <p class="notice" id="ownerLoginError" hidden></p>
+            </form>
+        </section>
+
+        <section class="card hidden" id="ownerDashboard">
+            <div class="section-title">
+                <h2>Dashboard summary</h2>
+                <button class="btn btn-danger" id="ownerLogout">Logout</button>
+            </div>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <span>Total donations</span>
+                    <strong id="summaryTotalDonations">₹0</strong>
+                </div>
+                <div class="summary-card">
+                    <span>Total platform fees collected</span>
+                    <strong id="summaryTotalFees">₹0</strong>
+                </div>
+                <div class="summary-card">
+                    <span>Total customer records</span>
+                    <strong id="summaryCustomerCount">0</strong>
+                </div>
+                <div class="summary-card">
+                    <span>Last login</span>
+                    <strong id="summaryLastLogin">—</strong>
+                </div>
+            </div>
+
+            <div class="card profile-card">
+                <h2>Authorized trust account</h2>
+                <p><strong>Access level:</strong> Full donor and payment visibility</p>
+                <p class="small">Only authorized trust staff may access this portal.</p>
+            </div>
+        </section>
+
+        <section class="card hidden" id="recordsSection">
+            <div class="section-title">
+                <h2>Donation records</h2>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Amount</th>
+                            <th>Fee</th>
+                            <th>Total paid</th>
+                            <th>PAN</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="donationTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="stats-grid hidden" id="trustSection">
+            <div class="stat-card">
+                <span>Trust score</span>
+                <strong id="trustScore">92%</strong>
+                <p class="small">Platform reliability based on donation record visibility.</p>
+            </div>
+            <div class="stat-card">
+                <span>Verified owner</span>
+                <strong id="ownerVerified">Yes</strong>
+                <p class="small">This portal is restricted to authorized trust staff.</p>
+            </div>
+            <div class="stat-card">
+                <span>Data visibility</span>
+                <strong>Full</strong>
+                <p class="small">All stored customer and payment details are shown here.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const ownerOnlyKey = 'giveOwnerLoggedIn';
+        const ownerOtpCode = '123456';
+        const ownerOtpInput = document.getElementById('ownerOtp');
+        const sendOwnerOtp = document.getElementById('sendOwnerOtp');
+        const verifyOwnerOtp = document.getElementById('verifyOwnerOtp');
+        const ownerLoginError = document.getElementById('ownerLoginError');
+        const ownerLoginHint = document.getElementById('ownerLoginHint');
+        const ownerDashboard = document.getElementById('ownerDashboard');
+        const recordsSection = document.getElementById('recordsSection');
+        const trustSection = document.getElementById('trustSection');
+        const ownerLoginCard = document.getElementById('ownerLoginCard');
+        const ownerLogout = document.getElementById('ownerLogout');
+        const donationTableBody = document.getElementById('donationTableBody');
+        const summaryTotalDonations = document.getElementById('summaryTotalDonations');
+        const summaryTotalFees = document.getElementById('summaryTotalFees');
+        const summaryCustomerCount = document.getElementById('summaryCustomerCount');
+        const summaryLastLogin = document.getElementById('summaryLastLogin');
+
+        function showOwnerView(show) {
+            ownerDashboard.classList.toggle('hidden', !show);
+            recordsSection.classList.toggle('hidden', !show);
+            trustSection.classList.toggle('hidden', !show);
+            ownerLoginCard.classList.toggle('hidden', show);
+        }
+
+        function displayError(message) {
+            ownerLoginError.hidden = false;
+            ownerLoginError.textContent = message;
+        }
+
+        function clearError() {
+            ownerLoginError.hidden = true;
+            ownerLoginError.textContent = '';
+        }
+
+        function loadDonationRecords() {
+            const raw = localStorage.getItem('giveDonationRecords');
+            if (!raw) return [];
+            try {
+                return JSON.parse(raw);
+            } catch {
+                return [];
+            }
+        }
+
+        function renderRecords() {
+            const records = loadDonationRecords();
+            donationTableBody.innerHTML = '';
+            let totalAmount = 0;
+            let totalFees = 0;
+
+            records.forEach((record, index) => {
+                totalAmount += record.amount;
+                totalFees += record.platformFee;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${record.name || '-'}</td>
+                    <td>${record.email || '-'}</td>
+                    <td>${record.phone || '-'}</td>
+                    <td>₹${record.amount.toLocaleString('en-IN')}</td>
+                    <td>₹${record.platformFee.toLocaleString('en-IN')}</td>
+                    <td>₹${record.totalPaid.toLocaleString('en-IN')}</td>
+                    <td>${record.pan || 'N/A'}</td>
+                    <td>${new Date(record.timestamp).toLocaleString('en-IN')}</td>
+                `;
+                donationTableBody.appendChild(row);
+            });
+
+            summaryTotalDonations.textContent = `₹${totalAmount.toLocaleString('en-IN')}`;
+            summaryTotalFees.textContent = `₹${totalFees.toLocaleString('en-IN')}`;
+            summaryCustomerCount.textContent = records.length;
+            summaryLastLogin.textContent = new Date().toLocaleString('en-IN');
+        }
+
+        function verifyOwnerLogin(otp) {
+            if (otp.trim() === '' && ownerOtpCode) {
+                displayError('Please enter your access code.');
+                return false;
+            }
+
+            if (otp.trim() === ownerOtpCode) {
+                clearError();
+                localStorage.setItem(ownerOnlyKey, 'true');
+                showOwnerView(true);
+                renderRecords();
+                return true;
+            }
+
+            displayError('Invalid access code. Please use the code shared with authorized trust staff.');
+            return false;
+        }
+
+        sendOwnerOtp.addEventListener('click', () => {
+            ownerLoginHint.textContent = 'Use the secure access code shared with authorized trust staff.';
+            clearError();
+        });
+
+        document.getElementById('ownerLoginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const otp = ownerOtpInput.value;
+            verifyOwnerLogin(otp);
+        });
+
+        ownerLogout.addEventListener('click', () => {
+            localStorage.removeItem(ownerOnlyKey);
+            ownerOtpInput.value = '';
+            clearError();
+            showOwnerView(false);
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const ownerLoggedIn = localStorage.getItem(ownerOnlyKey) === 'true';
+            if (ownerLoggedIn) {
+                showOwnerView(true);
+                renderRecords();
+            } else {
+                showOwnerView(false);
+            }
+        });
+    </script>
+</body>
+</html>
